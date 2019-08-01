@@ -36,7 +36,7 @@ parts:
       fi
       chmod a+x deis*
     organize:
-      'deis*': deis
+      'deis-*': deis
     build-packages:
       - curl
 
