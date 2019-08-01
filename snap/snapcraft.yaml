@@ -1,0 +1,47 @@
+name: doismellburning-hephy
+base: core18 # the base snap is the execution environment for this snap
+version: 2.20.2
+summary: Hephy Workflow (formerly Deis Workflow) - PaaS for Kubernetes
+description: |
+  Hephy Workflow (formerly Deis Workflow) is an open source Platform as a Service (PaaS) that adds a developer-friendly layer to any Kubernetes cluster, making it easy to deploy and manage applications.
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: devmode # use 'strict' once you have the right plugs and slots
+
+architectures:
+  - build-on: amd64
+  - build-on: i386
+
+parts:
+#  hephy:
+#    plugin: dump
+#    source:
+#      - on amd64: https://storage.googleapis.com/hephy-workflow-cli-release/v$SNAPCRAFT_PROJECT_VERSION/deis-v$SNAPCRAFT_PROJECT_VERSION-linux-amd64
+#      - on i386: https://storage.googleapis.com/hephy-workflow-cli-release/v$SNAPCRAFT_PROJECT_VERSION/deis-v$SNAPCRAFT_PROJECT_VERSION-linux-i386
+#    source-type: local
+#    organize:
+#      'deis*': deis
+  # Below hackery thanks to daniel at https://forum.snapcraft.io/t/fetching-a-plain-uncompressed-binary-with-the-dump-plugin/12579/2
+  hephy:
+    plugin: dump
+    source: .
+    override-pull: |
+      cd "$SNAPCRAFT_PART_SOURCE" # this line might be wrong. also maybe unneeded
+      if [ "$SNAPCRAFT_ARCH_TRIPLET" = "x86_64-linux-gnu" ]; then
+        curl -sSLO https://storage.googleapis.com/hephy-workflow-cli-release/v$SNAPCRAFT_PROJECT_VERSION/deis-v$SNAPCRAFT_PROJECT_VERSION-linux-amd64
+      elif [ "$SNAPCRAFT_ARCH_TRIPLET" = "i386-linux-gnu" ]; then
+        curl -sSLO https://storage.googleapis.com/hephy-workflow-cli-release/v$SNAPCRAFT_PROJECT_VERSION/deis-v$SNAPCRAFT_PROJECT_VERSION-linux-i386
+      else
+        exit 1
+      fi
+      chmod a+x deis*
+    organize:
+      'deis*': deis
+    build-packages:
+      - curl
+
+apps:
+  hephy:
+    command: deis
+  deis:
+    command: deis
